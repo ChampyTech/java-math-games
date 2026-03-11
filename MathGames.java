@@ -6,89 +6,102 @@ public class MathGames {
 
     public static void main(String[] args) {
         Scanner keyb = new Scanner(System.in);
-        int score = 0;
+        boolean playAgain = true;
 
         System.out.println("===== WELCOME TO MATH GAMES =====");
 
-        // 1. Chiedere quante operazioni l'utente vuole fare
-        System.out.print("How many operations do you want to play? ");
-        int numOperations = keyb.nextInt();
+        // Ciclo principale per permettere di rigiocare
+        do {
+            int score = 0;
 
-        // 2. Chiedere il livello di difficoltà (numero di cifre)
-        System.out.print("Choose difficulty (1, 2, 3, ... corresponds to the number of digits): ");
-        int difficulty = keyb.nextInt();
+            // 1. Chiedere quante operazioni l'utente vuole fare
+            System.out.print("\nHow many operations do you want to play? ");
+            int numOperations = getValidInt(keyb);
 
-        System.out.println("\nLet's start! (Note: divisions are integer divisions)");
-        System.out.println("---------------------------------------------------");
+            // 2. Chiedere il livello di difficoltà
+            System.out.print("Choose difficulty (1, 2, 3, ... corresponds to the number of digits): ");
+            int difficulty = getValidInt(keyb);
 
-        // 3. Ciclo per il numero di operazioni richieste
-        for (int i = 1; i <= numOperations; i++) {
-            // Generazione numeri
-            int num1 = generateNumber(difficulty);
-            int num2 = generateNumber(difficulty);
+            System.out.println("\nLet's start! (Note: divisions are perfect divisions)");
+            System.out.println("---------------------------------------------------");
 
-            // Generazione casuale dell'operazione (0: +, 1: -, 2: *, 3: /, 4: %)
-            int operationType = casuale.nextInt(5);
-            char symbol = ' ';
-            int correctAnswer = 0;
+            // 3. Ciclo per il numero di operazioni richieste
+            for (int i = 1; i <= numOperations; i++) {
+                // Generazione numeri
+                int num1 = generateNumber(difficulty);
+                int num2 = generateNumber(difficulty);
 
-            // Prevenzione della divisione (o resto) per zero
-            if ((operationType == 3 || operationType == 4) && num2 == 0) {
-                num2 = 1; // Forza num2 a 1 per evitare eccezioni di sistema
+                // Generazione casuale dell'operazione (0: +, 1: -, 2: *, 3: /, 4: %)
+                int operationType = casuale.nextInt(5);
+                char symbol = ' ';
+                int correctAnswer = 0;
+
+                // Prevenzione della divisione (o resto) per zero
+                if ((operationType == 3 || operationType == 4) && num2 == 0) {
+                    num2 = 1; // Forza num2 a 1 per evitare eccezioni di sistema
+                }
+
+                // Selezione dell'operazione
+                switch (operationType) {
+                    case 0:
+                        symbol = '+';
+                        correctAnswer = num1 + num2;
+                        break;
+                    case 1:
+                        symbol = '-';
+                        if (num1 < num2) { // Se il risultato è negativo, invertiamo
+                            int temp = num1;
+                            num1 = num2;
+                            num2 = temp;
+                        }
+                        correctAnswer = num1 - num2;
+                        break;
+                    case 2:
+                        symbol = '*';
+                        correctAnswer = num1 * num2;
+                        break;
+                    case 3:
+                        symbol = '/';
+                        int originalNum1 = num1;
+                        num1 = originalNum1 * num2; // Moltiplicazione preventiva
+                        correctAnswer = originalNum1;
+                        break;
+                    case 4:
+                        symbol = '%';
+                        if (num1 < num2) {
+                            int temp = num1;
+                            num1 = num2;
+                            num2 = temp;
+                        }
+                        correctAnswer = num1 % num2;
+                        break;
+                }
+
+                // Stampa della domanda e acquisizione sicura della risposta
+                System.out.print("Operation " + i + ": What is " + num1 + " " + symbol + " " + num2 + "? ");
+                int userAnswer = getValidInt(keyb);
+
+                // 4. Controllo del punteggio
+                if (userAnswer == correctAnswer) {
+                    System.out.println("Correct! +1 point.");
+                    score++;
+                } else {
+                    System.out.println("Wrong. The correct answer was: " + correctAnswer);
+                }
             }
 
-            // Selezione dell'operazione
-            switch (operationType) {
-                case 0:
-                    symbol = '+';
-                    correctAnswer = num1 + num2;
-                    break;
-                case 1:
-                    symbol = '-';
-                    if (num1 < num2) { // Se il risultato è negativo
-                        int temp = num1;
-                        num1 = num2;
-                        num2 = temp;
-                    }
-                    correctAnswer = num1 - num2;
-                    break;
-                case 2:
-                    symbol = '*';
-                    correctAnswer = num1 * num2;
-                    break;
-                case 3:
-                    symbol = '/';
-                    int originalNum1 = num1;
-                    num1 = originalNum1 * num2;
-                    correctAnswer = originalNum1;
-                    break;
-                case 4:
-                    symbol = '%';
-                    if (num1 < num2) {
-                        int temp = num1;
-                        num1 = num2;
-                        num2 = temp;
-                    }
-                    correctAnswer = num1 % num2;
-                    break;
-            }
+            // Stampa del punteggio finale
+            System.out.println("---------------------------------------------------");
+            System.out.println("GAME OVER! Your final score is: " + score + " out of " + numOperations);
 
-            // Stampa della domanda e acquisizione della risposta
-            System.out.print("Operation " + i + ": What is " + num1 + " " + symbol + " " + num2 + "? ");
-            int userAnswer = keyb.nextInt();
+            // 5. Chiediamo all'utente se vuole fare un'altra partita
+            System.out.print("\nDo you want to play again? (y/n): ");
+            String answer = keyb.nextLine().trim().toLowerCase();
 
-            // 4. Controllo del punteggio
-            if (userAnswer == correctAnswer) {
-                System.out.println("Correct! +1 point.");
-                score++;
-            } else {
-                System.out.println("Wrong. The correct answer was: " + correctAnswer);
-            }
-        }
+            playAgain = answer.equals("y") || answer.equals("yes");
+        } while (playAgain);
 
-        // Stampa del punteggio finale
-        System.out.println("---------------------------------------------------");
-        System.out.println("GAME OVER! Your final score is: " + score + " out of " + numOperations);
+        System.out.println("Thanks for playing! Goodbye.");
 
         keyb.close();
     }
@@ -102,5 +115,15 @@ public class MathGames {
         if (difficulty == 1) min = 1;
 
         return casuale.nextInt((max - min) + 1) + min;
+    }
+
+    public static int getValidInt(Scanner keyb) {
+        while (true) {
+            try {
+                return Integer.parseInt(keyb.nextLine().trim());
+            } catch (Exception e) {
+                System.out.print("Invalid input. Please enter a valid number: ");
+            }
+        }
     }
 }
